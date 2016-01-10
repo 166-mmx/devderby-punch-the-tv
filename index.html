@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Punch the TV</title>
+<link href='http://fonts.googleapis.com/css?family=Anton&v2' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Love+Ya+Like+A+Sister&v2' rel='stylesheet' type='text/css'>
+<style>
+	@-webkit-keyframes showpanel {
+		0% {display:none;opacity:0}
+		1% {display:block;opacity:0;}
+		100% {opacity:1}
+	}
+	@-webkit-keyframes hidepanel {
+		0% {opacity:1}
+		99% {display:block;opacity:0;}
+		100% {display:block;opacity:0}		
+	}
+	@-webkit-keyframes punch {
+		0% {top:-170px;-webkit-transform:rotate(20deg)}
+		100% {top:-120px;-webkit-transform:rotate(-10deg);}		
+	}
+	
+	@-moz-keyframes showpanel {
+		0% {display:none;opacity:0}
+		1% {display:block;opacity:0;}
+		100% {opacity:1}
+	}
+	@-moz-keyframes hidepanel {
+		0% {opacity:1}
+		99% {display:block;opacity:0;}
+		100% {display:block;opacity:0}		
+	}
+	@-moz-keyframes punch {
+		0% {top:-170px;-moz-transform:rotate(20deg)}
+		100% {top:-120px;-moz-transform:rotate(-10deg);}		
+	}
+</style>
+<style>
+	html {
+        background: url(back.png) no-repeat center bottom fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+	}
+	.write {font-family: 'Love Ya Like A Sister', cursive;}
+	#canvas {display:block;float:left;}
+	canvas,video {display:none;}
+	h1,h2, h2 + p {font-family:'Anton', sans-serif;font-weight:normal;}
+	h1 {color:#ffa914;font-size:60px;text-shadow:#7b530b 3px 3px 0px;padding:0px;margin:0px 0px 10px 0px;}
+	h2 {color:#ce880d;font-size:32px;margin:0px 0px 20px 0px;padding:0px;text-shadow:#7b530b 3px 3px 0px;}
+	h2 + p, h2 + p a {
+		font-size:14px;
+		text-decoration:none;
+		color:#ce880d;
+	}
+	h2 + p a {
+		color:#7b530b;
+	}
+	#pointer {
+		transform-origin: center right;
+		-o-transform-origin: center right;
+		-webkit-transform-origin: center right;
+		-moz-transform-origin: center right;
+	}
+	#retroCombo {
+		position:relative;
+	}
+	#retroCombo img#screen {
+		position:absolute;
+		top:-10px;
+		left:0px;
+	}
+	#retroCombo #panelImg {
+		position:absolute;
+		top:-160px;
+		left:300px;
+		opacity:0;
+		display:none;
+		-webkit-animation-name: hidepanel;
+		-webkit-animation-duration: 0.1s;
+		-webkit-animation-iteration-count: 1;
+		-webkit-animation-direction: normal;	
+		-webkit-animation-timing-function:linear;
+		-webkit-animation-fill-mode:forwards;
+		
+		-moz-animation-name: hidepanel;
+		-moz-animation-duration: 0.1s;
+		-moz-animation-iteration-count: 1;
+		-moz-animation-direction: normal;	
+		-moz-animation-timing-function:linear;
+		-moz-animation-fill-mode:forwards;
+		
+		animation-name: hidepanel;
+		animation-duration: 0.1s;
+		animation-iteration-count: 1;
+		animation-direction: normal;	
+		animation-timing-function:linear;
+		animation-fill-mode:forwards;
+		z-index:101;
+	}
+	#retroCombo #controlPanel {
+		opacity:0;
+		position:absolute;
+		width: 50px;
+		height: 320px;
+		z-index:100;
+		left:420px;
+		background:yellow;
+		
+	}
+	
+	#retroCombo #controlPanel:hover + #panelImg, #retroCombo #panelImg:hover, #retroCombo #controlPanel:hover ~ #desc, #retroCombo #panelImg:hover ~ #desc  {
+		display:block;
+		-webkit-animation-name: showpanel;
+		-webkit-animation-duration: 0.1s;
+		-webkit-animation-iteration-count: 1;
+		-webkit-animation-direction: normal;	
+		-webkit-animation-timing-function:linear;
+		-webkit-animation-fill-mode:both;
+		
+		-moz-animation-name: showpanel;
+		-moz-animation-duration: 0.1s;
+		-moz-animation-iteration-count: 1;
+		-moz-animation-direction: normal;	
+		-moz-animation-timing-function:linear;
+		-moz-animation-fill-mode:both;
+		
+		animation-name: showpanel;
+		animation-duration: 0.1s;
+		animation-iteration-count: 1;
+		animation-direction: normal;	
+		animation-timing-function:linear;
+		animation-fill-mode:both;
+	}
+	#retroCombo #panelImg #images {
+		position:relative;
+	}
+	#retroCombo #panelImg img {
+		display:block;
+		position:absolute;
+	}
+	
+	#panel {
+		top:-20px;
+		left:-15px;
+	}
+	
+	#brightness {
+		top: 103px;
+		left: 138px;
+		-moz-transform: rotate(30deg);
+		-webkit-transform: rotate(30deg);
+		-o-transform: rotate(30deg);
+		transform: rotate(30deg);
+	}
+	#brightness + div {
+		top:90px;
+	}
+	#contrast {
+		top: 183px;
+		left: 139px;
+		-moz-transform: rotate(30deg);
+		-webkit-transform: rotate(30deg);
+		-o-transform: rotate(30deg);
+		transform: rotate(30deg);
+	}
+	#contrast + div {
+		top: 170px;
+	}
+	#volume {
+		top: 263px;
+		left: 138px;
+		-moz-transform: rotate(90deg);
+		-webkit-transform: rotate(90deg);
+		-o-transform: rotate(90deg);
+		transform: rotate(90deg);
+	}
+	#volume + div {
+		top: 250px;
+	}
+	#tune {
+		top: 340px;
+		left: 135px;
+		-moz-transform: rotate(30deg);
+		-webkit-transform: rotate(30deg);
+		-o-transform: rotate(30deg);
+		transform: rotate(30deg);
+	}
+	#tune + div {
+		top: 327px;
+	}
+	#arrow {
+		position:absolute;
+		left:500px;
+	}
+	#arrow p {
+		position:absolute;
+		left:60px;
+		top:70px;
+		font-size:20px;
+		-moz-transform: rotate(30deg);
+		-webkit-transform: rotate(30deg);
+		-o-transform: rotate(30deg);
+		transform: rotate(30deg);
+		width:300px;
+	}
+	#desc {
+		background:url(bg.png) no-repeat;
+		opacity:0;
+		width:222px;
+		height:288px;
+		position:absolute;
+		top:0px !important;
+		left:560px;
+		padding:50px 0px 0px 0px;
+		text-align:center;
+		z-index:100;
+		display:none;
+		
+	}
+	#desc img {
+		display:inline !important;
+		width:120px;
+		height:115px;
+		position:static !important;
+	}
+	
+	.hide {display:none;}
+	#panelImg > #mainPanel img + div {
+		position:absolute;
+		left:200px;
+		font-size:18px;
+		background:url(small_cloud.png) no-repeat;
+		padding:30px 0px 10px 40px;
+		width:164px;
+	}
+	
+	#panelImg > #mainPanel img:hover + div {
+		display:block;
+	}
+	#retroCombo {
+		width:820px;
+		position:absolute;
+		left:50%;
+		margin-left:-240px;
+		bottom:20%;
+	}
+	#fist {
+		display:block;
+		position:absolute;
+		top:-170px;
+		left:120px;
+		opacity:0.7;
+		-webkit-transform:rotate(20deg);
+		-moz-transform:rotate(20deg);
+		-o-transform:rotate(20deg);
+		transform:rotate(20deg);
+		cursor: pointer;
+	}
+	
+	#fist:hover {
+		opacity:1;
+	}
+	
+	#mainPanel {
+		position:relative;
+		z-index:4000;
+	}
+	
+	#out-of-order {
+		display:block;
+		opacity:0;
+		position:absolute; 
+		font-size:18px;
+		background:url(small_cloud.png) no-repeat;
+		padding:30px 0px 10px 0px;
+		width:204px;
+		top:420px;
+		left:50px;
+		text-align:center;
+	}
+	
+	#out-of-order:hover {
+		opacity:1;
+	}
+	
+	.punchAnimation {
+		-webkit-animation-name: punch;
+		-webkit-animation-duration: 0.2s;
+		-webkit-animation-iteration-count: 2;
+		-webkit-animation-direction: alternate;	
+		-webkit-animation-timing-function:linear;
+		-webkit-animation-fill-mode:none;
+		
+		-moz-animation-name: punch;
+		-moz-animation-duration: 0.2s;
+		-moz-animation-iteration-count: 2;
+		-moz-animation-direction: alternate;	
+		-moz-animation-timing-function:linear;
+		-moz-animation-fill-mode:none;
+		
+		animation-name: punch;
+		animation-duration: 0.2s;
+		animation-iteration-count: 2;
+		animation-direction: alternate;	
+		animation-timing-function:linear;
+		animation-fill-mode:none;
+	}
+</style>
+<script>
+
+var d2r = Math.PI/180;
+var retroScreen = {
+	width: 320,
+	height: 240,
+	extWidth:480,
+	extHeight:320,
+	video: null,
+	canvas: null,
+	ctx: null,
+	contrast:1,
+	brightness:1,
+	extCanvas: null,
+	//depr
+	noiseLevel: 1,
+	tune: 50,
+	goodTune:0,
+	// semaphore
+	working: 0,
+	volume:70,
+	ready: false,
+	changeQueue: [],
+	prepare: function() {
+		this.video = document.getElementById('video');
+		this.extCanvas = document.getElementById('canvas');
+		this.canvas = document.createElement('canvas');
+		this.canvas.width=this.width;
+		this.canvas.height=this.height;
+		this.ctx = this.canvas.getContext('2d');
+		var self = this;
+		// setting noiseLevel
+		this.goodTune = Math.round(Math.random()*400 - 50);
+		/*this.video.addEventListener('play', function() {
+			self.timer();
+		}, false);*/
+		
+		self.timer();
+		this.video.addEventListener('ended', function() {
+			//console.log('ended', this);
+			this.play();
+			//self.timer();
+		}, true);
+		this.effect.addEffect(actions.effects[Math.round(Math.random()*(actions.effects.length-1))] );
+		setTimeout(retroScreen.newEffect,1000);
+	},
+	timer: function() {
+		var black = false;
+		//console.log(this.video.canplay);
+		if (this.video.readyState<2 || this.video.paused || this.video.ended) {
+	      black = true;
+	    }
+		//console.log(9);
+	    this.makeFrame(black);
+	    var self = this;
+	    setTimeout(function () {
+	        self.timer();
+	    }, 0);			
+	},
+	effect: {
+		add: null,
+		addctx: null,
+		prepare: function() {
+			this.add = document.getElementById('add');
+			this.addctx = this.add.getContext('2d');
+		},
+		effects:[],
+		// effect's params - data - CanvasPixelArray, t - time since start, params - additional params and ctx as a context (sometimes it is faster to prepare keyframe directly on canvas)
+		moving: function(data, t) {
+			var l = data.length / 4;
+			var lines = retroScreen.height;
+			var cols = retroScreen.width;
+			var p = Math.round((Math.sin(t)+1)*10);
+			
+			for (var i =0; i<lines; i++) {
+				for (var j =0; j<cols; j++) {
+					var r = data[(i*cols + j)*4];
+					var g = data[(i*cols + j)*4 + 1];
+					var b = data[(i*cols + j)*4 + 2];
+
+					if (j+p>cols) {
+						data[(i*cols + j)*4] = 0;
+						data[(i*cols + j)*4 + 1] = 0;
+						data[(i*cols + j)*4 + 2] = 0;
+					} else {
+						data[(i*cols + j)*4] = data[(i*cols + j+p)*4];
+						data[(i*cols + j)*4 + 1] = data[(i*cols + j+p)*4 +1];
+						data[(i*cols + j)*4 + 2] = data[(i*cols + j+p)*4 +2];
+					}
+				}			
+			}
+			return false;
+		},
+		distortion: function(data, t, params) {
+			var l = data.length / 4;
+			var lines = retroScreen.height;
+			var cols = retroScreen.width;
+			var p = Math.round((Math.sin(t* d2r)+1)*10);
+
+			var power = 1;
+			var tcp = t;
+			if (t<params.time/3) {
+				power = (t/(params.time/3));  
+			}
+
+			if (t>(2*params.time)/3) {
+				power = (params.time-t) / (params.time/3);  
+			}
+			
+			var value = 0;
+			for (var i =0; i<lines; i++) {
+				value = (Math.sin(i*8* d2r + t/10)+1) * power;
+				//console.log(value );
+				//value = 0;
+				var pm = Math.round(p*value);
+				for (var j =0; j<cols; j++) {
+					/*var r = data[(i*cols + j)*4];
+					var g = data[(i*cols + j)*4 + 1];
+					var b = data[(i*cols + j)*4 + 2];
+*/
+					if (j+pm>cols) {
+						//console.log(j+p, cols);
+						data[(i*cols + j)*4] = 0;
+						data[(i*cols + j)*4 + 1] = 0;
+						data[(i*cols + j)*4 + 2] = 0;
+					} else {
+						data[(i*cols + j)*4] = data[(i*cols + j+pm)*4];
+						data[(i*cols + j)*4 + 1] = data[(i*cols + j+pm)*4 +1];
+						data[(i*cols + j)*4 + 2] = data[(i*cols + j+pm)*4 +2];
+					}
+				}			
+			}
+			if (tcp>params.time)
+				return true;
+			return false;
+		},
+		flash: function(data, t, params) {
+			var lines = retroScreen.height;
+			var cols = retroScreen.width;
+			var p = (Math.abs(Math.sin(t* Math.PI/15))+0.5) * (params.value*4+1);
+			var value = 0;
+
+			var power = 1;
+			var tcp = t;
+			if (t<params.time/3) {
+				power = (t/(params.time/3));  
+			}
+
+			if (t>(2*params.time)/3) {
+				power = (params.time-t) / (params.time/3);  
+			}
+			
+			for (var i =0; i<lines; i++) {
+				var value = (Math.sin(((i/retroScreen.height)*180)* Math.PI/180)+1) * p; 
+				for (var j =0; j<cols; j++) {
+					
+					var val = Math.round(value * (((((Math.sin(i* d2r)+1)/4) * (1-(Math.cos(((j/(retroScreen.width/2))*180) * d2r)/4))) / 2) * (power)) * 100);
+					var r = data[(i*cols + j)*4];
+					var g = data[(i*cols + j)*4 + 1];
+					var b = data[(i*cols + j)*4 + 2];
+
+					data[(i*cols + j)*4] += val;
+					data[(i*cols + j)*4 + 1] += val;
+					data[(i*cols + j)*4 + 2] += val;
+				}
+				
+			}
+			if (tcp>params.time)
+				return true;
+			return false;
+		},
+		noiseLine: function (data, t, params){
+			var lines = retroScreen.height;
+			var cols = retroScreen.width;
+			var h = Math.round(50*params.value+20);
+			var tcp = t;
+		
+			if (t<params.time/4) {
+				h = Math.round( h*(t/(params.time/4)));  
+			}
+
+			if (t>(3*params.time)/4) {
+				h = Math.round( h* (params.time-t) / (params.time/4)) ;  
+			}
+			
+			t = t%(lines+h) -h;
+			var imageData = this.addctx.getImageData(0,0,50,50);
+			var l = imageData.data.length;
+			for (var i = 0; i < l/4; i++) {
+				imageData.data[i*4] = imageData.data[i*4+1] = imageData.data[i*4+2] =  Math.round(Math.random()*255);
+				imageData.data[i*4+1] *= 1.2;
+				imageData.data[i*4+3] = 255;
+			}
+
+			this.addctx.putImageData(imageData, 0, 0);
+			/*this.add.width = cols;
+			this.add.height = h;*/
+			
+			params.ctx.drawImage(this.add, 0,t,cols, h);
+			
+
+			//var config.ctx.getImageData(0,0,cols,lines).data
+			
+			var tdata = params.ctx.getImageData(0,0,cols,lines).data;
+			for (var i=t; i<t+h; i++) {
+				if (i<0 || i>lines) break;
+				for (var j=0; j<cols; j++) {
+					data[(i*cols+j)*4] = tdata[(i*cols+j)*4];
+					data[(i*cols+j)*4+1] = tdata[(i*cols+j)*4+1];
+					data[(i*cols+j)*4+2] = tdata[(i*cols+j)*4+2];
+					data[(i*cols+j)*4+3] = tdata[(i*cols+j)*4+3];
+				}
+			}
+
+			if (tcp>params.time) {
+				return true;
+			}
+			return false;
+			
+			
+		},
+		//noise, contrast and brightness
+		noise: function(data) {
+			var l = data.length /4 ;
+			for (var i =0; i<l; i++) {
+				var r = data[i*4];
+				var g = data[i*4 + 1];
+				var b = data[i*4 + 2];
+
+				//noise
+				var noise = 128*Math.random()*Math.random()*Math.random()*(Math.abs(retroScreen.tune-retroScreen.goodTune)/100) + 10;
+				var middle = (r+g+b)/3;
+				data[i*4] = middle+noise;
+				data[i*4 + 1] = middle*1.2+noise;
+				if (retroScreen.contrast!=1) {
+					
+					data[i*4] = ((data[i*4]-128)*(retroScreen.contrast*2/3+(1/6)))+128;
+					data[i*4+1] = ((data[i*4+1]-128)*(retroScreen.contrast*2/3+(1/6)))+128;
+
+					
+				}
+				
+				if (retroScreen.brightness!=1) {
+					data[i*4] *= retroScreen.brightness*2/3;
+					data[i*4+1] *= retroScreen.brightness*2/3;
+					if (retroScreen.brightness<1) {
+						data[i*4] += 40*(1-retroScreen.brightness);
+						data[i*4+1] += 48*(1-retroScreen.brightness);
+					}
+				}
+
+				if (data[i*4+1]>255) {
+					data[i*4+1] = 255;
+					data[i*4] = 255;
+				}
+				if (data[i*4+1]<0) {
+					data[i*4+1] = 0;
+					data[i*4] = 0;
+				}
+				data[i*4+2] = data[i*4];
+				
+			}
+		},
+		phase: function(data, t, params) {
+			var lines = retroScreen.height;
+			var cols = retroScreen.width;
+			var p = t;
+			var l = data.length;
+			var newdata = [];
+			var newd = retroScreen.ctx.createImageData(retroScreen.width,retroScreen.height);
+			var newdata = newd.data;
+			//newdata = data;
+			//console.log(newdata);
+			for (var i =0; i<l; i++) {
+				newdata[i] = data[i];
+			}
+
+			p*=Math.round(t*params.tempo);
+			
+			for (var i =0; i<lines; i++) {
+				for (var j =0; j<cols; j++) {
+					data[(i*cols + j)*4] = newdata[(((i+p) % lines)*cols + j)*4];
+					data[(i*cols + j)*4 + 1] = newdata[(((i+p) % lines)*cols + j)*4 +1];
+					data[(i*cols + j)*4 + 2] = newdata[(((i+p) % lines)*cols + j)*4 +2];
+					data[(i*cols + j)*4 + 3] = 255;
+				}
+			}
+			/** @todo czarna linia na dole **/
+		},
+		wave: function(data, t, params) {
+			var lines = retroScreen.height;
+			var cols = retroScreen.width;
+			var h = 80;
+
+			var power = 1;
+			var tcp = t;
+			if (t<params.time/3) {
+				power = (t/(params.time/3));  
+			}
+
+			if (t>(2*params.time)/3) {
+				power = (params.time-t) / (params.time/3);  
+			}
+			
+			t = (t+ params.phase)%cols - h;
+			var p = 20 + Math.round((Math.sin(t* d2r)+1)*5);
+			
+			
+			for (var i =t; i<t+h; i++) {
+				if (i<0 || i > cols) continue;
+				var pom = ((i-t)/h)*360;
+
+				value = (Math.sin(pom*d2r - (1/2)*Math.PI)+1) * power;
+				//console.log(value );
+				//value = 0;
+				var pm = Math.round(p*value);
+				
+				for (var j =0; j<cols; j++) {
+					if (j+pm>cols) {
+						//console.log(j+p, cols);
+						data[(i*cols + j)*4] = 0;
+						data[(i*cols + j)*4 + 1] = 0;
+						data[(i*cols + j)*4 + 2] = 0;
+					} else {
+						data[(i*cols + j)*4] = data[(i*cols + j+pm)*4];
+						data[(i*cols + j)*4 + 1] = data[(i*cols + j+pm)*4 +1];
+						data[(i*cols + j)*4 + 2] = data[(i*cols + j+pm)*4 +2];
+					}
+				}
+			}
+			//console.log(t, params.time)
+			if (tcp>params.time)
+				return true;
+			return false;
+		},
+		doEffect: function(data) {
+			var date = Math.round(((new Date()).getTime())/10);
+			var finish = false;
+			
+			var params = {};
+			for(var i in this.effects) {
+				params = this.effects[i].params;
+				params.ctx = retroScreen.ctx;
+				finish = this.effects[i].func.call(retroScreen.effect, data, date-this.effects[i].start, params);
+				if (finish) {
+					delete this.effects[i];
+				}
+			}
+			this.noise(data);
+			
+		},
+		addEffect: function(type, values) {
+			var params = {};
+			switch(type) {
+				
+				case 'phase':
+					params.tempo = 0.02; 
+					break;
+				case 'distortion':
+				case 'wave': 
+					params.phase = Math.round(Math.random()*retroScreen.height);
+				case 'flash':
+				case 'noiseLine':
+					params.time = Math.round(Math.random()*1000);
+					params.value = Math.random();
+					break;
+			}
+			if (typeof values != 'undefined')
+				for(var i in values) {
+					params[i] = values[i];
+				}
+			
+			return this.effects.push({type: type, start: Math.round(((new Date()).getTime())/10), func: this[type], params: params});
+		},
+		stopEffect: function(i) {
+			delete this.effects[i];
+		},
+		findEffect: function(name) {
+			for (var i in this.effects)
+				if (this.effects[i] && this.effects[i].type == name)
+					return true;
+			return false;
+		}
+	},
+	
+	makeFrame: function(black) {
+		if (!black)
+			this.ctx.drawImage(this.video, 0, 0, this.width, this.height);
+		else {
+			this.ctx.clearRect(0,0,this.width, this.height);
+			this.ctx.fillStyle = 'rgb(30,30,30)';
+			this.ctx.fillRect(0,0,this.width,this.height);
+		}
+		var data = this.ctx.getImageData(0,0,this.width,this.height);
+//		var l = data.data.length / 4;
+
+		this.effect.doEffect(data.data);
+		this.ctx.putImageData(data, 0, 0);
+		this.behaviour();
+
+		this.extCanvas.getContext('2d').drawImage(this.canvas,0,0,this.extWidth,this.extHeight)
+	},
+	newEffect: function() {
+		var eff = false;
+		for (var i in retroScreen.effect.effects) {
+			if (retroScreen.effect.effects != null) {
+				return false;
+				/*eff = true;
+				break;*/
+			}
+		}
+		
+		var pp = Math.abs(retroScreen.tune - retroScreen.goodTune)/7500;
+		if (Math.random()<pp) {
+			var effect = Math.round(Math.random()*(actions.effects.length-1));
+			retroScreen.effect.addEffect(actions.effects[effect]);
+		}
+		setTimeout(retroScreen.newEffect,1000);
+	},
+	change: function (name, value) {
+		var it = (value - this[name])/40;
+		//console.log('start');
+		var self = this;
+		var dir = 1;
+		if (it<0) dir = -1;
+		this.working++;
+		var a = setTimeout(function() {self._change(name, value, it, dir)},100);
+		this.changeQueue.push(a);	
+	},
+	_change: function (name, value, it, dir) {
+		//console.log(it, dir, value, this[name], (dir == 1 && this[name]+it <= value ) || (dir == -1 && this[name]+it >= value ));
+		var self = this;
+		if ( (dir == 1 && this[name]+it >= value ) || (dir == -1 && this[name]+it <= value ) ) { this[name] = value; /*console.log('stop');*/ this.working--; return; }
+		this[name] += it;
+		var a = setTimeout(function() {self._change(name, value, it, dir)}, 100);
+		this.changeQueue.push(a);	
+	},
+	clearQueue: function() {
+		for (var i in this.changeQueue) {
+			if (this.changeQueue[i]) {clearTimeout(this.changeQueue[i]);};
+		}
+		this.working =0;
+		this.changeQueue = [];
+	},
+	// managing distortions of tv
+	behaviour: function() {
+		if (this.working != 0) return;
+		if (Math.random() > 0.95 ) {
+			var newNoise = Math.round(Math.random()*400-50);
+			this.change('goodTune', newNoise);
+			//this.noiseLevel = newNoise;
+		}
+	},
+	play: function() {
+		this.video.volume = 0.7;
+		this.video.play();
+	}
+}
+
+/**
+ * css class manager (adding, checking, removing)
+ */
+
+CSSClass = {};
+CSSClass.addClass = function(el, className) {
+	var re = new RegExp("\\b"+className+"\\b", 'ig');
+	if (!((el.className+'').match(re))) {
+		el.className += ' '+className;
+	}
+}
+
+CSSClass.hasClass = function(el, className) {
+	var re = new RegExp("\\b"+className+"\\b", 'ig');
+	return (el.className+'').match(re);
+}
+
+CSSClass.removeClass = function(el, className) {
+	var re = new RegExp("\\b"+className+"\\b", 'ig');
+	el.className = el.className.replace(re,'').trim();
+}
+
+CSSClass.addRemoveClass = function(el, classNameToAdd, classNameToRemove) {
+	var remove = new RegExp("\\b"+classNameToRemove+"\\b", 'ig');
+	var className = el.className;
+	className = className.replace(remove,'').trim();
+	if (!className.match(classNameToAdd))
+		className += ' '+classNameToAdd;
+	el.className = className;
+}
+
+
+var actions = {
+	effects: ['distortion', 'phase', 'flash',  'wave'],
+	fist: null,
+	blocked: false,
+	punchTimeout:null,
+	punch: function() {
+		//console.log(this.fist, actions.fist);
+		CSSClass.removeClass(this.fist, 'punchAnimation');
+		setTimeout(function() {CSSClass.addClass(actions.fist, 'punchAnimation')},0);
+		var self = this;
+		clearTimeout(this.punchTimeout);
+		this.punchTimeout = setTimeout(function() {
+			retroScreen.clearQueue();
+			var newNoise = Math.round(Math.random()*400-50);
+			retroScreen.goodTune = newNoise;
+			for (var i in retroScreen.effect.effects) {
+				if (retroScreen.effect.effects) {
+					if (Math.random() > 0.5) {
+						var diff = ((Math.random()-0.5)*1000);
+						retroScreen.effect.effects[i].start += Math.round(diff);
+					} else {
+						retroScreen.effect.stopEffect(i);
+					}
+				}
+			}
+			// choose effect
+			var eff = Math.round(Math.random()*(self.effects.length-1));
+			if ((Math.random() > 0.5) && !retroScreen.effect.findEffect(self.effects[eff])) {
+				retroScreen.effect.addEffect(self.effects[eff]);
+			}
+			retroScreen.effect.addEffect('flash', {time: Math.round(5+Math.random()*5), value: 2});
+		},200);
+		
+	},
+	// causing effects, and changes amplitude of sinuses
+	tune: function (event) {
+		var move = (event.wheelDeltaY?event.wheelDeltaY/30:-event.detail);
+		retroScreen.tune += move;
+		
+		if (retroScreen.tune>100) {
+			retroScreen.tune = 100;
+		}
+		if (retroScreen.tune<0) {
+			retroScreen.tune = 0;
+		}
+		var pointer = document.getElementById('tune');
+		pointer.style.MozTransform = 'rotate('+(retroScreen.tune*2.8-100)+'deg)';
+		pointer.style.webkitTransform = 'rotate('+(retroScreen.tune*2.8-100)+'deg)';
+		retroScreen.newEffect();
+		return false;
+	},
+	volume: function (event) {
+		var move = (event.wheelDeltaY?event.wheelDeltaY/30:-event.detail);
+		retroScreen.volume += move;
+		
+		if (retroScreen.volume>100) {
+			retroScreen.volume = 100;
+		}
+		if (retroScreen.volume<0) {
+			retroScreen.volume = 0;
+		}
+		retroScreen.video.volume = Math.round(retroScreen.volume) / 100; 
+		
+		var pointer = document.getElementById('volume');
+		pointer.style.MozTransform = 'rotate('+(retroScreen.volume*2.8-100)+'deg)';
+		pointer.style.webkitTransform = 'rotate('+(retroScreen.volume*2.8-100)+'deg)';
+		return false;
+	},
+	contrast: function (event) {
+		var move = (event.wheelDeltaY?event.wheelDeltaY/30:-event.detail);
+		var contrast = (retroScreen.contrast*50) + move;
+		
+		if (contrast>100) {
+			contrast = 100;
+		}
+		if (contrast<0) {
+			contrast = 0;
+		}
+		retroScreen.contrast = Math.round(contrast) / 50; 
+		
+		var pointer = document.getElementById('contrast');
+		pointer.style.MozTransform = 'rotate('+(retroScreen.contrast*50*2.8-100)+'deg)';
+		pointer.style.webkitTransform = 'rotate('+(retroScreen.contrast*50*2.8-100)+'deg)';
+		return false;
+	},
+	brightness: function (event) {
+		var move = (event.wheelDeltaY?event.wheelDeltaY/30:-event.detail);
+		var brightness = (retroScreen.brightness*50) + move;
+		
+		if (brightness>100) {
+			brightness = 100;
+		}
+		if (brightness<0) {
+			brightness = 0;
+		}
+		retroScreen.brightness = Math.round(brightness) / 50; 
+		
+		var pointer = document.getElementById('brightness');
+		pointer.style.MozTransform = 'rotate('+(retroScreen.brightness*50*2.8-100)+'deg)';
+		pointer.style.webkitTransform = 'rotate('+(retroScreen.brightness*50*2.8-100)+'deg)';
+		return false;
+	},
+	blockScroll: function(event) {
+		actions.blocked = true;
+	},
+	unblockScroll: function(event) {
+		actions.blocked = false;
+	},
+	scrollHandler: function(event) {
+		if (actions.blocked)
+			event.preventDefault();
+		return actions.blocked;
+	}
+}
+
+window.onload = function() {
+	retroScreen.prepare();
+	retroScreen.effect.prepare();
+	retroScreen.play();
+	actions.fist = document.getElementById('fist');
+	document.getElementById('tune').addEventListener('mousewheel', actions.tune, false);
+	document.getElementById('tune').addEventListener('DOMMouseScroll', actions.tune, false);
+	document.getElementById('tune').addEventListener('mouseover', actions.blockScroll, false);
+	document.getElementById('tune').addEventListener('mouseout', actions.unblockScroll, false);
+	document.getElementById('volume').addEventListener('mouseover', actions.blockScroll, false);
+	document.getElementById('volume').addEventListener('mouseout', actions.unblockScroll, false);
+	document.getElementById('volume').addEventListener('mousewheel', actions.volume, false);
+	document.getElementById('volume').addEventListener('DOMMouseScroll', actions.volume, false);
+	
+	document.getElementById('contrast').addEventListener('mouseover', actions.blockScroll, false);
+	document.getElementById('contrast').addEventListener('mouseout', actions.unblockScroll, false);
+	document.getElementById('contrast').addEventListener('mousewheel', actions.contrast, false);
+	document.getElementById('contrast').addEventListener('DOMMouseScroll', actions.contrast, false);
+	
+	document.getElementById('brightness').addEventListener('mouseover', actions.blockScroll, false);
+	document.getElementById('brightness').addEventListener('mouseout', actions.unblockScroll, false);
+	document.getElementById('brightness').addEventListener('mousewheel', actions.brightness, false);
+	document.getElementById('brightness').addEventListener('DOMMouseScroll', actions.brightness, false);
+	
+	window.addEventListener('scroll', actions.scrollHandler, false);
+	window.addEventListener('mousewheel', actions.scrollHandler, false);
+	window.addEventListener('DOMMouseScroll', actions.scrollHandler, false);
+}
+</script>
+</head>
+<body>
+	<h1>Punch the TV!</h1>
+	<h2>It's the best method to repair it...</h2>
+	<p>by <a href="http://michal.biniek.pl" onclick="window.open(this.href);return false;">Michal Biniek</a></p>
+	<video id="video" width="320" height="240" controls loop volume="0.0">
+  
+	  <source src="androidsdemo.webm" type='video/webm; codecs="vp8, vorbis"' />
+	  <source src="androidsdemo.theora.ogv"  type='video/ogg; codecs="theora, vorbis"' />
+	  <source src="androidsdemo.iphone.mp4"  type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
+	  
+	</video>
+	<div id="retroCombo">
+		<canvas id="canvas" width="480" height="320">
+		</canvas>
+		<img src="fist.png" onclick="actions.punch();" id="fist" />
+		<img src="tv_small.png" id="screen" />
+		<div id="controlPanel"></div>
+		<div id="panelImg">
+			<div id="mainPanel">
+				<img src="panel.png" id="panel" />
+				<img src="bzdzionk.png" id="brightness" />
+				<div class="hide write">brightness</div>
+				<img src="bzdzionk.png" id="contrast" />
+				<div class="hide write">contrast</div>
+				<img src="bzdzionk.png" id="volume" />
+				<div class="hide write">volume</div>
+				<img src="bzdzionk.png" id="tune" />
+				<div class="hide write">tune</div>
+				<div class="hide write" id="out-of-order">out of order</div>
+			</div>
+		</div>
+		<div id="desc" class="write"><img src="scroll.png" /><br/>use mouse scroll<br/>to change<br/>settings</div>
+		<div id="arrow" class="write">
+			<img src="arrow.png" />
+			<p>move over the panel<br/>to zoom in and tune up the tv</p>
+		</div>
+	</div>
+	<canvas id="add" width="50" height="50"></canvas>
+	<div id="filters"></div>
+	<div style="clear:both"></div>
+
+</body>
+</html>
